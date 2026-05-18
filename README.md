@@ -111,9 +111,14 @@ docs/yaml-api-concept.md
 6. Propose Home Assistant water_heater domain improvements
 7. Prepare official ESPHome and Home Assistant pull requests if accepted
 
+## Safety notice
+
+This project is intended for research, design discussion, and controlled testing.
+
+Water heaters and electric boilers can involve high voltage, high current, pressure, and hot water. Any real installation must use proper electrical protection, certified components, thermal safety limits, and local safety regulations.
+
+This controller concept should not replace mechanical thermostats, thermal cutoffs, pressure relief valves, or other required safety devices.
+
 ## License
 
 MIT
-
-
-بعد ما تكمل، الخطوة التالية نسوي فولدر `docs` ونضيف أول ملف: `yaml-api-concept.md`.
