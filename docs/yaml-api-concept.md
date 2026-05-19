@@ -217,7 +217,7 @@ water_heater:
     # This section defines the physical heating stages.
     #
     # Important naming:
-    # - command_output is the relay/switch command.
+    # - heat_action / idle_action command the relay/switch outputs.
     # - on_condition/off_condition are real feedback/readback checks.
     # - the stage id is what profiles reference in expected_outputs.
     # --------------------------------------------------------
@@ -225,8 +225,6 @@ water_heater:
       - id: primary_heater_stage
         name: "Primary Heater Stage"
         icon: mdi:heat-wave
-
-        command_output: Boiler_Primary_Heater_Relay
 
         on_condition:
           binary_sensor.is_on: Boiler_Primary_Heater_Feedback
@@ -242,8 +240,6 @@ water_heater:
         name: "Assist Heater Stage"
         icon: mdi:heat-wave
 
-        command_output: Boiler_Assist_Heater_Relay
-
         on_condition:
           binary_sensor.is_on: Boiler_Assist_Heater_Feedback
 
@@ -257,8 +253,6 @@ water_heater:
       - id: boost_heater_stage
         name: "Boost Heater Stage"
         icon: mdi:flash
-
-        command_output: Boiler_Boost_Heater_Relay
 
         on_condition:
           binary_sensor.is_on: Boiler_Boost_Heater_Feedback
@@ -287,9 +281,8 @@ water_heater:
         icon: mdi:transmission-tower
 
         type: run_interlock
-        # allowed:
-        # - start_permissive
-        # - run_interlock
+        # v0.1 examples use run_interlock only.
+        # start_permissive remains an open design question.
 
         condition:
           - binary_sensor.is_on: Boiler_Grid_Power_Available
@@ -313,7 +306,7 @@ water_heater:
         name: "High Load Permission"
         icon: mdi:meter-electric
 
-        type: start_permissive
+        type: run_interlock
 
         condition:
           - binary_sensor.is_on: Boiler_High_Load_Allowed
@@ -326,8 +319,8 @@ water_heater:
     # --------------------------------------------------------
     # Profiles are user-defined only.
     #
-    # The component does not provide built-in ECO, Normal,
-    # Performance, or any other fixed profile names.
+    # The component does not provide built-in Economy, Balanced,
+    # Fast Recovery, or any other fixed profile names.
     #
     # Each profile defines:
     # - name/icon shown in UI
@@ -517,7 +510,7 @@ fault_reasons:
 | `runtime action` | Internal controller state exposed to Home Assistant |
 | `temperature sensor` | Measurement input used for control/display |
 | `monitored output` | A physical heater stage that can be checked by feedback |
-| `command_output` | Relay/switch controlled by ESPHome |
+| `heat_action` / `idle_action` | ESPHome actions that command relay/switch outputs |
 | `feedback` | Real-world readback confirming the physical stage state |
 | `interlock` | Temporary condition that blocks heating |
 | `waiting_reason` | Human-readable reason for `waiting_for` |
