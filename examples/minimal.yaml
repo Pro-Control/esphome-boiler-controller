@@ -55,8 +55,8 @@ water_heater:
 
     # A monitored output represents a real heater stage.
     #
-    # command_output:
-    #   the ESPHome switch/relay used to command the heater stage
+    # heat_action / idle_action:
+    #   the ESPHome actions that command the heater relay/switch
     #
     # on_condition / off_condition:
     #   real feedback/readback proving that the stage is actually on/off
@@ -64,8 +64,6 @@ water_heater:
       - id: main_heater_stage
         name: "Main Heater Stage"
         icon: mdi:heat-wave
-
-        command_output: Boiler_Main_Heater_Relay
 
         on_condition:
           binary_sensor.is_on: Boiler_Main_Heater_Feedback
