@@ -24,32 +24,32 @@ The proposed controller is designed for systems that need:
 water_heater:
   - platform: profile_dual_point
     name: "Boiler"
-````
+```
 
 ## Core idea
 
 The controller separates concepts that are often mixed together:
 
-| Concept          | Meaning                                                                 |
-| ---------------- | ----------------------------------------------------------------------- |
-| Profile          | User-defined heating strategy, such as Economy, Balanced, Fast Recovery |
-| Action           | Runtime state: heating, idle, waiting_for, error, off                   |
-| Temperature      | One or more tank sensors used for control and display                   |
-| Interlock        | Temporary condition that blocks heating but is not a fault              |
-| Feedback         | Real-world confirmation that a heater stage actually started or stopped |
-| Expected outputs | The required ON/OFF state of heater stages during heating and idle      |
+| Concept | Meaning |
+|---|---|
+| Profile | User-defined heating strategy, such as Economy, Balanced, Fast Recovery |
+| Action | Runtime state: heating, idle, waiting_for, error, off |
+| Temperature | One or more tank sensors used for control and display |
+| Interlock | Temporary condition that blocks heating but is not a fault |
+| Feedback | Real-world confirmation that a heater stage actually started or stopped |
+| Expected outputs | The required ON/OFF state of heater stages during heating and idle |
 
 ## Runtime actions
 
 The controller exposes a fixed set of runtime actions:
 
-| Action        | Meaning                                                                    |
-| ------------- | -------------------------------------------------------------------------- |
-| `heating`     | Heating is required and the physical outputs are confirmed active          |
-| `idle`        | The controller is enabled but no heating is currently required             |
-| `waiting_for` | Heating is required but blocked by an interlock or missing configuration   |
-| `error`       | A real fault exists, such as invalid sensor data or failed output feedback |
-| `off`         | The water heater is disabled by the user                                   |
+| Action | Meaning |
+|---|---|
+| `heating` | Heating is required and the physical outputs are confirmed active |
+| `idle` | The controller is enabled but no heating is currently required |
+| `waiting_for` | Heating is required but blocked by an interlock or missing configuration |
+| `error` | A real fault exists, such as invalid sensor data or failed output feedback |
+| `off` | The water heater is disabled by the user |
 
 ## Profiles are user-defined
 
@@ -82,16 +82,16 @@ This project explores a controller that keeps the correct `water_heater` domain 
 
 ## Planned features
 
-* Profile-based boiler control
-* Heat-only dual-point target range
-* Multiple temperature sensor support
-* Average / minimum / maximum / primary sensor calculation
-* Interlocks with waiting reasons
-* Physical output feedback validation
-* Expected ON/OFF output states per profile
-* Manual or automatic fault reset policy
-* Home Assistant-friendly state attributes
-* ESPHome external component proof of concept
+- Profile-based boiler control
+- Heat-only dual-point target range
+- Multiple temperature sensor support
+- Average / minimum / maximum / primary sensor calculation
+- Interlocks with waiting reasons
+- Physical output feedback validation
+- Expected ON/OFF output states per profile
+- Manual or automatic fault reset policy
+- Home Assistant-friendly state attributes
+- ESPHome external component proof of concept
 
 ## Proposed YAML concept
 
