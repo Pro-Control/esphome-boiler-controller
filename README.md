@@ -134,6 +134,12 @@ v0.2-poc-schema
 
 This milestone will focus on an ESPHome external component skeleton and YAML schema validation.
 
+## External discussions
+
+| Platform | Discussion | Status |
+|---|---|---|
+| ESPHome Feature Requests | [Add Profile-Based Dual-Point Water Heater Controller](https://github.com/orgs/esphome/discussions/3663) | Open |
+
 ## Roadmap
 
 1. Define the YAML API concept
