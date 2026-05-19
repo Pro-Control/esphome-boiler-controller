@@ -116,7 +116,7 @@ water_heater:
     # Each monitored output is a physical heater stage.
     #
     # Naming convention:
-    # - *_Relay is the command switch controlled by ESPHome.
+    # - *_Relay appears inside heat_action / idle_action.
     # - *_Feedback is the real-world feedback/readback.
     # - *_heater_stage is the logical stage referenced by profiles.
     # --------------------------------------------------------
@@ -124,8 +124,6 @@ water_heater:
       - id: primary_heater_stage
         name: "Primary Heater Stage"
         icon: mdi:heat-wave
-
-        command_output: Boiler_Primary_Heater_Relay
 
         on_condition:
           binary_sensor.is_on: Boiler_Primary_Heater_Feedback
@@ -141,8 +139,6 @@ water_heater:
         name: "Assist Heater Stage"
         icon: mdi:heat-wave
 
-        command_output: Boiler_Assist_Heater_Relay
-
         on_condition:
           binary_sensor.is_on: Boiler_Assist_Heater_Feedback
 
@@ -156,8 +152,6 @@ water_heater:
       - id: boost_heater_stage
         name: "Boost Heater Stage"
         icon: mdi:flash
-
-        command_output: Boiler_Boost_Heater_Relay
 
         on_condition:
           binary_sensor.is_on: Boiler_Boost_Heater_Feedback
@@ -185,9 +179,8 @@ water_heater:
         icon: mdi:transmission-tower
 
         type: run_interlock
-        # allowed:
-        # - start_permissive
-        # - run_interlock
+        # v0.1 examples use run_interlock only.
+        # start_permissive remains an open design question.
 
         condition:
           - binary_sensor.is_on: Boiler_Grid_Power_Available
@@ -211,7 +204,7 @@ water_heater:
         name: "High Load Permission"
         icon: mdi:meter-electric
 
-        type: start_permissive
+        type: run_interlock
 
         condition:
           - binary_sensor.is_on: Boiler_High_Load_Allowed
