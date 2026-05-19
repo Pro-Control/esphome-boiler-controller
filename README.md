@@ -139,6 +139,7 @@ This milestone will focus on an ESPHome external component skeleton and YAML sch
 | Platform | Discussion | Status |
 |---|---|---|
 | ESPHome Feature Requests | [Add Profile-Based Dual-Point Water Heater Controller](https://github.com/orgs/esphome/discussions/3663) | Open |
+| Home Assistant Feature Requests | [Add water_heater runtime action and profile support for advanced boiler controllers](https://github.com/orgs/home-assistant/discussions/3825) | Open |
 
 ## Roadmap
 
