@@ -80,6 +80,22 @@ The `climate` thermostat platform provides stronger control behavior, but it use
 
 This project explores a controller that keeps the correct `water_heater` domain while adding boiler-specific control logic.
 
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [`docs/problem-statement.md`](docs/problem-statement.md) | Explains the gap this project is trying to solve |
+| [`docs/yaml-api-concept.md`](docs/yaml-api-concept.md) | Describes the proposed YAML API |
+| [`docs/state-machine.md`](docs/state-machine.md) | Defines the runtime controller state machine |
+| [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md) | Outlines the path from concept to external component and upstream proposals |
+
+## Examples
+
+| Example | Purpose |
+|---|---|
+| [`examples/minimal.yaml`](examples/minimal.yaml) | Minimal one-sensor / one-stage boiler concept |
+| [`examples/advanced-multi-stage-boiler.yaml`](examples/advanced-multi-stage-boiler.yaml) | Advanced multi-sensor / multi-stage boiler concept |
+
 ## Planned features
 
 - Profile-based boiler control
@@ -93,13 +109,30 @@ This project explores a controller that keeps the correct `water_heater` domain 
 - Home Assistant-friendly state attributes
 - ESPHome external component proof of concept
 
-## Proposed YAML concept
+## Repository status
 
-See:
+Current milestone:
 
 ```text
-docs/yaml-api-concept.md
+v0.1-design
 ```
+
+This milestone focuses on:
+
+- problem definition
+- YAML API concept
+- state machine
+- minimal example
+- advanced example
+- implementation roadmap
+
+The next milestone will be:
+
+```text
+v0.2-poc-schema
+```
+
+This milestone will focus on an ESPHome external component skeleton and YAML schema validation.
 
 ## Roadmap
 
