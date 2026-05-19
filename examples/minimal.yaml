@@ -1,0 +1,113 @@
+# ============================================================
+# Minimal example
+# Profile-Based Dual-Point Water Heater Controller
+#
+# Status:
+# This is a YAML concept example.
+# It is not currently supported by ESPHome as-is.
+# ============================================================
+
+water_heater:
+  - platform: profile_dual_point
+    name: "Boiler"
+    id: boiler_water_heater
+    icon: mdi:water-boiler
+
+    # The low/high target range is set by the user from
+    # Home Assistant / Web Server UI and restored internally.
+    target:
+      require_configured_range: true
+      minimum_span: 3.0
+
+    # One temperature sensor is enough for a minimal setup.
+    temperature:
+      sensors:
+        - id: tank_temperature
+          sensor: Boiler_Tank_Temperature
+          name: "Tank Temperature"
+          icon: mdi:thermometer
+          ui_slot: main
+
+      calculation:
+        method: primary
+        primary_sensor: tank_temperature
+        unavailable_behavior: error
+
+    # UI limits only. These do not define default target values.
+    visual:
+      min_temperature: 40.0
+      max_temperature: 80.0
+      target_temperature_step: 1.0
+
+    # Prevent rapid relay cycling.
+    timing:
+      min_heat_run_time: 60s
+      min_heat_off_time: 60s
+      min_idle_time: 10s
+
+    # Wait before checking real-world output feedback.
+    feedback:
+      settle_time: 10s
+
+    # Safer default for real heater faults.
+    faults:
+      reset: manual
+
+    # A monitored output represents a real heater stage.
+    #
+    # command_output:
+    #   the ESPHome switch/relay used to command the heater stage
+    #
+    # on_condition / off_condition:
+    #   real feedback/readback proving that the stage is actually on/off
+    monitored_outputs:
+      - id: main_heater_stage
+        name: "Main Heater Stage"
+        icon: mdi:heat-wave
+
+        command_output: Boiler_Main_Heater_Relay
+
+        on_condition:
+          binary_sensor.is_on: Boiler_Main_Heater_Feedback
+
+        off_condition:
+          binary_sensor.is_off: Boiler_Main_Heater_Feedback
+
+        on_fault_reason: "Main heater stage did not start"
+        off_fault_reason: "Main heater stage did not stop"
+
+    # Interlocks are temporary blockers, not faults.
+    interlocks:
+      - id: safe_water_level
+        name: "Safe Water Level"
+        icon: mdi:water-alert
+        type: run_interlock
+
+        condition:
+          - binary_sensor.is_on: Boiler_Water_Level_OK
+
+        waiting_reason: "Waiting for safe water level"
+
+    # Profiles are user-defined only.
+    profiles:
+      - id: standard_profile
+        name: "Standard"
+        icon: mdi:water-boiler
+
+        interlocks:
+          - safe_water_level
+
+        heat_action:
+          - switch.turn_on: Boiler_Main_Heater_Relay
+
+        idle_action:
+          - switch.turn_off: Boiler_Main_Heater_Relay
+
+        expected_outputs:
+          heating:
+            on:
+              - main_heater_stage
+
+          idle:
+            off:
+              - main_heater_stage
