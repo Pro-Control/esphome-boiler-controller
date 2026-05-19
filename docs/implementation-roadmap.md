@@ -14,7 +14,7 @@ The controller should provide a real boiler-control model inside the `water_heat
 - user-defined profiles
 - heat-only dual-point target range
 - multiple temperature sensors
-- interlocks / permissive conditions
+- interlocks / future permissive conditions
 - real physical output feedback
 - explicit runtime actions
 - clear waiting and fault reasons
@@ -468,7 +468,7 @@ Implement this order:
 4. Basic dual-point logic.
 5. Runtime action: `off`, `idle`, `heating`.
 6. Add `waiting_for` for missing target range.
-7. Add interlocks.
+7. Add run_interlocks.
 8. Add feedback validation.
 9. Add `error` state.
 10. Add multiple profiles.
