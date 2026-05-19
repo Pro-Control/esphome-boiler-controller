@@ -1,0 +1,340 @@
+# ============================================================
+# Advanced example
+# Profile-Based Dual-Point Water Heater Controller
+#
+# Status:
+# This is a YAML concept example.
+# It is not currently supported by ESPHome as-is.
+# ============================================================
+
+water_heater:
+  - platform: profile_dual_point
+    name: "Boiler"
+    id: boiler_water_heater
+    icon: mdi:water-boiler
+
+    # --------------------------------------------------------
+    # Target temperature range
+    # --------------------------------------------------------
+    # The user sets target_temperature_low and target_temperature_high
+    # from Home Assistant / Web Server UI.
+    #
+    # The component restores the last saved values internally.
+    #
+    # If no saved target range exists:
+    # action = waiting_for
+    # reason = "Target temperature range not configured"
+    # --------------------------------------------------------
+    target:
+      require_configured_range: true
+      minimum_span: 3.0
+
+
+    # --------------------------------------------------------
+    # Temperature sensors
+    # --------------------------------------------------------
+    # These are measurement inputs, not heater outputs.
+    #
+    # The controller uses the calculated temperature for control.
+    # The UI may show each sensor in a defined card slot.
+    # --------------------------------------------------------
+    temperature:
+      sensors:
+        - id: tank_top_temperature
+          sensor: Boiler_Tank_Top_Temperature
+          name: "Tank Top Temperature"
+          icon: mdi:thermometer-chevron-up
+          ui_slot: top_left
+
+        - id: tank_middle_temperature
+          sensor: Boiler_Tank_Middle_Temperature
+          name: "Tank Middle Temperature"
+          icon: mdi:thermometer
+          ui_slot: top_right
+
+        - id: tank_bottom_temperature
+          sensor: Boiler_Tank_Bottom_Temperature
+          name: "Tank Bottom Temperature"
+          icon: mdi:thermometer-chevron-down
+          ui_slot: bottom_left
+
+      calculation:
+        method: average
+        # allowed:
+        # - primary
+        # - average
+        # - minimum
+        # - maximum
+
+        # Used only when method: primary.
+        # primary_sensor: tank_middle_temperature
+
+        unavailable_behavior: error
+
+
+    # --------------------------------------------------------
+    # UI limits only
+    # --------------------------------------------------------
+    # These values define the allowed UI range.
+    # They do NOT define default target temperatures.
+    # --------------------------------------------------------
+    visual:
+      min_temperature: 40.0
+      max_temperature: 85.0
+      target_temperature_step: 0.5
+
+
+    # --------------------------------------------------------
+    # Anti-chatter / safety timing
+    # --------------------------------------------------------
+    timing:
+      min_heat_run_time: 60s
+      min_heat_off_time: 60s
+      min_idle_time: 10s
+
+
+    # --------------------------------------------------------
+    # Physical output feedback timing
+    # --------------------------------------------------------
+    feedback:
+      settle_time: 10s
+
+
+    # --------------------------------------------------------
+    # Fault behavior
+    # --------------------------------------------------------
+    faults:
+      reset: manual
+      # allowed:
+      # - manual
+      # - auto_when_clear
+
+
+    # --------------------------------------------------------
+    # Monitored heater outputs
+    # --------------------------------------------------------
+    # Each monitored output is a physical heater stage.
+    #
+    # Naming convention:
+    # - *_Relay is the command switch controlled by ESPHome.
+    # - *_Feedback is the real-world feedback/readback.
+    # - *_heater_stage is the logical stage referenced by profiles.
+    # --------------------------------------------------------
+    monitored_outputs:
+      - id: primary_heater_stage
+        name: "Primary Heater Stage"
+        icon: mdi:heat-wave
+
+        command_output: Boiler_Primary_Heater_Relay
+
+        on_condition:
+          binary_sensor.is_on: Boiler_Primary_Heater_Feedback
+
+        off_condition:
+          binary_sensor.is_off: Boiler_Primary_Heater_Feedback
+
+        on_fault_reason: "Primary heater stage did not start"
+        off_fault_reason: "Primary heater stage did not stop"
+
+
+      - id: assist_heater_stage
+        name: "Assist Heater Stage"
+        icon: mdi:heat-wave
+
+        command_output: Boiler_Assist_Heater_Relay
+
+        on_condition:
+          binary_sensor.is_on: Boiler_Assist_Heater_Feedback
+
+        off_condition:
+          binary_sensor.is_off: Boiler_Assist_Heater_Feedback
+
+        on_fault_reason: "Assist heater stage did not start"
+        off_fault_reason: "Assist heater stage did not stop"
+
+
+      - id: boost_heater_stage
+        name: "Boost Heater Stage"
+        icon: mdi:flash
+
+        command_output: Boiler_Boost_Heater_Relay
+
+        on_condition:
+          binary_sensor.is_on: Boiler_Boost_Heater_Feedback
+
+        off_condition:
+          binary_sensor.is_off: Boiler_Boost_Heater_Feedback
+
+        on_fault_reason: "Boost heater stage did not start"
+        off_fault_reason: "Boost heater stage did not stop"
+
+
+    # --------------------------------------------------------
+    # Interlocks / permissives
+    # --------------------------------------------------------
+    # Interlocks are temporary blockers, not faults.
+    #
+    # If an active interlock is false:
+    # action = waiting_for
+    # heat_action is blocked
+    # current profile idle_action is applied
+    # --------------------------------------------------------
+    interlocks:
+      - id: grid_power_available
+        name: "Grid Power Available"
+        icon: mdi:transmission-tower
+
+        type: run_interlock
+        # allowed:
+        # - start_permissive
+        # - run_interlock
+
+        condition:
+          - binary_sensor.is_on: Boiler_Grid_Power_Available
+
+        waiting_reason: "Waiting for grid power"
+
+
+      - id: safe_water_level
+        name: "Safe Water Level"
+        icon: mdi:water-alert
+
+        type: run_interlock
+
+        condition:
+          - binary_sensor.is_on: Boiler_Water_Level_OK
+
+        waiting_reason: "Waiting for safe water level"
+
+
+      - id: high_load_permission
+        name: "High Load Permission"
+        icon: mdi:meter-electric
+
+        type: start_permissive
+
+        condition:
+          - binary_sensor.is_on: Boiler_High_Load_Allowed
+
+        waiting_reason: "Waiting for high load permission"
+
+
+    # --------------------------------------------------------
+    # User-defined profiles
+    # --------------------------------------------------------
+    # Profiles are fully user-defined.
+    #
+    # The component does not provide built-in names such as:
+    # ECO / Normal / Performance.
+    #
+    # In this example, the user created:
+    # - Economy
+    # - Balanced
+    # - Fast Recovery
+    # --------------------------------------------------------
+    profiles:
+
+      # ------------------------------------------------------
+      # Profile 1: Economy
+      # Uses only the primary heater stage.
+      # ------------------------------------------------------
+      - id: economy_profile
+        name: "Economy"
+        icon: mdi:leaf
+
+        interlocks:
+          - grid_power_available
+          - safe_water_level
+
+        heat_action:
+          - switch.turn_on: Boiler_Primary_Heater_Relay
+
+        idle_action:
+          - switch.turn_off: Boiler_Primary_Heater_Relay
+
+        expected_outputs:
+          heating:
+            on:
+              - primary_heater_stage
+            off:
+              - assist_heater_stage
+              - boost_heater_stage
+
+          idle:
+            off:
+              - primary_heater_stage
+              - assist_heater_stage
+              - boost_heater_stage
+
+
+      # ------------------------------------------------------
+      # Profile 2: Balanced
+      # Uses primary + assist heater stages.
+      # ------------------------------------------------------
+      - id: balanced_profile
+        name: "Balanced"
+        icon: mdi:water-boiler
+
+        interlocks:
+          - grid_power_available
+          - safe_water_level
+
+        heat_action:
+          - switch.turn_on: Boiler_Primary_Heater_Relay
+          - switch.turn_on: Boiler_Assist_Heater_Relay
+
+        idle_action:
+          - switch.turn_off: Boiler_Primary_Heater_Relay
+          - switch.turn_off: Boiler_Assist_Heater_Relay
+
+        expected_outputs:
+          heating:
+            on:
+              - primary_heater_stage
+              - assist_heater_stage
+            off:
+              - boost_heater_stage
+
+          idle:
+            off:
+              - primary_heater_stage
+              - assist_heater_stage
+              - boost_heater_stage
+
+
+      # ------------------------------------------------------
+      # Profile 3: Fast Recovery
+      # Uses all heater stages.
+      # Requires high-load permission.
+      # ------------------------------------------------------
+      - id: fast_recovery_profile
+        name: "Fast Recovery"
+        icon: mdi:flash
+
+        interlocks:
+          - grid_power_available
+          - safe_water_level
+          - high_load_permission
+
+        heat_action:
+          - switch.turn_on: Boiler_Primary_Heater_Relay
+          - switch.turn_on: Boiler_Assist_Heater_Relay
+          - switch.turn_on: Boiler_Boost_Heater_Relay
+
+        idle_action:
+          - switch.turn_off: Boiler_Primary_Heater_Relay
+          - switch.turn_off: Boiler_Assist_Heater_Relay
+          - switch.turn_off: Boiler_Boost_Heater_Relay
+
+        expected_outputs:
+          heating:
+            on:
+              - primary_heater_stage
+              - assist_heater_stage
+              - boost_heater_stage
+
+          idle:
+            off:
+              - primary_heater_stage
+              - assist_heater_stage
+              - boost_heater_stage
