@@ -53,7 +53,7 @@ The controller exposes a fixed set of runtime actions:
 
 ## Profiles are user-defined
 
-The component does not provide built-in modes such as ECO, Normal, or Performance.
+The component does not provide built-in profiles such as ECO, Normal, or Performance.
 
 Instead, users define their own profiles:
 
