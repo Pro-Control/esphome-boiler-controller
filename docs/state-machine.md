@@ -288,15 +288,13 @@ Interlocks are temporary conditions that can block heating.
 
 They are not faults.
 
-### start_permissive
+For the v0.1 concept, examples use one interlock behavior:
 
-A `start_permissive` is checked before starting heating.
+```text
+run_interlock
+```
 
-If it becomes false while already heating, the component may either continue or stop depending on the profile design. The default recommended behavior is to stop heating and enter `waiting_for`.
-
-### run_interlock
-
-A `run_interlock` must remain true while heating.
+A `run_interlock` must be true before heating starts and must remain true while heating.
 
 If it becomes false while heating:
 
@@ -305,6 +303,8 @@ apply current profile idle_action
 action = waiting_for
 expose waiting_reason
 ```
+
+A separate `start_permissive` behavior may be considered later, but it is intentionally not used in the v0.1 examples to avoid ambiguous runtime behavior.
 
 ## Feedback behavior
 
